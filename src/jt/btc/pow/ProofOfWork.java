@@ -37,7 +37,7 @@ public class ProofOfWork {
      * <p>
      * 我们这里的TARGET_BITS是固定的，但是在真实的比特币中，难度目标是随着时间的推推，会动态调整的。
      */
-    public static final int TARGET_BITS = 20;
+    public static final int TARGET_BITS = 1;
 
     /**
      * 区块
@@ -98,6 +98,7 @@ public class ProofOfWork {
     public PowResult run() {
         long nonce = 0;
         String shaHex = "";
+        log.info("Mining the block containing：{} \n", new Object[]{this.getBlock().getData()});
         long startTime = System.currentTimeMillis();
         while (nonce < Long.MAX_VALUE) {
             log.info("POW running, nonce=" + nonce);
@@ -112,5 +113,16 @@ public class ProofOfWork {
             }
         }
         return new PowResult(nonce,shaHex);
+    }
+
+
+    /**
+     * 验证区块是否有效
+     *
+     * @return
+     */
+    public boolean validate() {
+        byte[] data=this.prepareData(this.getBlock().getNonce());
+        return new BigInteger(DigestUtils.sha256Hex(data),16).compareTo(this.target)==-1;
     }
 }

@@ -1,5 +1,7 @@
 package jt.btc.block;
 
+import jt.btc.pow.PowResult;
+import jt.btc.pow.ProofOfWork;
 import jt.btc.uti.ByteUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -38,7 +40,10 @@ public class Block {
      * 区块创建时间(单位:秒)
      */
     private long timeStamp;
-
+    /**
+     * 工作量证明计数器
+     */
+    private long nonce;
     /**
      * <p> 创建创世区块 </p>
      *
@@ -57,8 +62,11 @@ public class Block {
      * @return
      */
     public static Block newBlock(String previousHash, String data) {
-        Block block = new Block(ZERO_HASH, previousHash, data, Instant.now().getEpochSecond());
-        block.setHash();
+        Block block = new Block(ZERO_HASH, previousHash, data, Instant.now().getEpochSecond(),0);
+        ProofOfWork proofOfWork=ProofOfWork.newProofOfWork(block);
+        PowResult powResult=proofOfWork.run();
+        block.setHash(powResult.getHash());
+        block.setNonce(powResult.getNonce());
         return block;
     }
 
@@ -75,6 +83,7 @@ public class Block {
      *
      * @return
      */
+    @Deprecated
     private void setHash() {
         byte[] prevBlockHashBytes = {};
         if (StringUtils.isNoneBlank(this.getPreviousHash())) {
