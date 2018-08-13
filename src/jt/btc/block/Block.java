@@ -1,6 +1,10 @@
 package jt.btc.block;
 
 import jt.btc.uti.ByteUtils;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -11,6 +15,10 @@ import java.time.Instant;
 /**
  * 区块
  */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class Block {
     private static final String ZERO_HASH = Hex.encodeHexString(new byte[32]);
 
@@ -30,49 +38,6 @@ public class Block {
      * 区块创建时间(单位:秒)
      */
     private long timeStamp;
-
-    public Block() {
-    }
-
-    public Block(String hash, String previousHash, String data, long timeStamp) {
-        this.hash = hash;
-        this.previousHash = previousHash;
-        this.data = data;
-        this.timeStamp = timeStamp;
-    }
-
-    public String getHash() {
-        return hash;
-    }
-
-    public void setHash(String hash) {
-        this.hash = hash;
-    }
-
-    public String getPreviousHash() {
-        return previousHash;
-    }
-
-    public void setPreviousHash(String previousHash) {
-        this.previousHash = previousHash;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
-    }
-
-    public long getTimeStamp() {
-        return timeStamp;
-    }
-
-    public void setTimeStamp(long timeStamp) {
-        this.timeStamp = timeStamp;
-    }
-
 
     /**
      * <p> 创建创世区块 </p>

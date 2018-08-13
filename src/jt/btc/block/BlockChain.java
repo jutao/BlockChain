@@ -1,7 +1,11 @@
 package jt.btc.block;
 
 
-import java.time.Instant;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,6 +17,10 @@ import java.util.List;
  * 时获取它的hash值。这种结构保证可以快速获取最新插入的block
  * 同时（高效地）获取它的hash值。
  */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Slf4j
 public class BlockChain {
 
     private List<Block> blockList;
@@ -25,9 +33,6 @@ public class BlockChain {
         this.blockList = blockList;
     }
 
-    public BlockChain(List<Block> blockList) {
-        this.blockList = blockList;
-    }
 
     /**
      * <p> 添加区块  </p>
