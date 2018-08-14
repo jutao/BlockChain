@@ -10,6 +10,7 @@ public class BlockChainTest {
         blockChain.addBlock("send 1 BTC tO JT");
         blockChain.addBlock("send 2 BTC tO JT");
         blockChain.addBlock("send 3 BTC tO SDL");
+        blockChain.addBlock("send 4 BTC tO YY");
 
         for (Block block : blockChain.getBlockList()) {
             System.out.println("Prev. hash: " + block.getPreviousHash());

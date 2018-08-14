@@ -37,7 +37,7 @@ public class ProofOfWork {
      * <p>
      * 我们这里的TARGET_BITS是固定的，但是在真实的比特币中，难度目标是随着时间的推推，会动态调整的。
      */
-    public static final int TARGET_BITS = 1;
+    public static final int TARGET_BITS = 9;
 
     /**
      * 区块
@@ -56,10 +56,16 @@ public class ProofOfWork {
      * <p>
      * 对1进行移位运算，将1向左移动 (256 - TARGET_BITS) 位，得到我们的难度目标值
      *
+     * 向左移动的位数越多，数值越小。前面的0越多。
+     * 可以想象我们随机生成一个[0，32)的十进制数字，你如果想得到一个小于20的数字，概率是20/32，获得小于10的数字概率是10/32
+     * 所以我们只需要指定左移位数增加(数字变小)，并且规定随机生成的数必须小于这个数字，左移位数越多，获得小于这个数
+     * 的概率也就越小，工作量也就越大
+     *
      * @param block
      * @return
      */
     public static ProofOfWork newProofOfWork(Block block) {
+        //相当于2^(256 - TARGET_BITS)
         BigInteger targetValue = BigInteger.valueOf(1).shiftLeft(256 - TARGET_BITS);
         return new ProofOfWork(block, targetValue);
     }
@@ -77,6 +83,7 @@ public class ProofOfWork {
         if (StringUtils.isNoneBlank(this.getBlock().getPreviousHash())) {
             prevBlockHashBytes = new BigInteger(this.getBlock().getPreviousHash(), 16).toByteArray();
         }
+
         return ByteUtils.merge(
                 //前一个区块（父区块）的Hash值
                 prevBlockHashBytes,
@@ -101,9 +108,9 @@ public class ProofOfWork {
         log.info("Mining the block containing：{} \n", new Object[]{this.getBlock().getData()});
         long startTime = System.currentTimeMillis();
         while (nonce < Long.MAX_VALUE) {
-            log.info("POW running, nonce=" + nonce);
             byte[] data = this.prepareData(nonce);
             shaHex = DigestUtils.sha256Hex(data);
+            //计算出的值小于目标
             if (new BigInteger(shaHex, 16).compareTo(this.target) == -1) {
                 log.info("Elapsed Time: {} seconds \n", new Object[]{(float) (System.currentTimeMillis() - startTime) / 1000});
                 log.info("correct hash Hex: {} \n", new Object[]{shaHex});
