@@ -19,7 +19,6 @@ public class BlockChainTest {
                     boolean validate = ProofOfWork.newProofOfWork(block).validate();
                     System.out.println(block.toString() + ", validate = " + validate);
                 }
-
             }
         }catch (Exception e){
             e.printStackTrace();
