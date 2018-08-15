@@ -1,13 +1,12 @@
 package jt.btc.block;
 
 
+import jt.btc.store.RocksDBUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.LinkedList;
-import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 区块链
@@ -23,15 +22,7 @@ import java.util.List;
 @Slf4j
 public class BlockChain {
 
-    private List<Block> blockList;
-
-    public List<Block> getBlockList() {
-        return blockList;
-    }
-
-    public void setBlockList(List<Block> blockList) {
-        this.blockList = blockList;
-    }
+    private String lastBlockHash;
 
 
     /**
@@ -39,9 +30,12 @@ public class BlockChain {
      *
      * @param data
      */
-    public void addBlock(String data) {
-        Block previousBlock=blockList.get(blockList.size()-1);
-        this.addBlock(Block.newBlock(previousBlock.getHash(),data));
+    public void addBlock(String data) throws Exception {
+        String lastBlockHash = RocksDBUtils.getInstance().getLastBlockHash();
+        if (StringUtils.isBlank(lastBlockHash)) {
+            throw new Exception("Fail to add block into blockchain ! ");
+        }
+        this.addBlock(Block.newBlock(lastBlockHash, data));
     }
 
     /**
@@ -50,7 +44,9 @@ public class BlockChain {
      * @param block
      */
     public void addBlock(Block block) {
-        this.blockList.add(block);
+        RocksDBUtils.getInstance().putLastBlockHash(block.getHash());
+        RocksDBUtils.getInstance().putBlock(block);
+        this.lastBlockHash = block.getHash();
     }
 
     /**
@@ -59,8 +55,62 @@ public class BlockChain {
      * @return
      */
     public static BlockChain newBlockChain() {
-        List<Block> blocks = new LinkedList<>();
-        blocks.add(Block.newGenesisBlock());
-        return new BlockChain(blocks);
+        String lastBlockHash = RocksDBUtils.getInstance().getLastBlockHash();
+        if (StringUtils.isBlank(lastBlockHash)) {
+            Block genesisBlock = Block.newGenesisBlock();
+            lastBlockHash = genesisBlock.getHash();
+            RocksDBUtils.getInstance().putBlock(genesisBlock);
+            RocksDBUtils.getInstance().putLastBlockHash(lastBlockHash);
+        }
+        return new BlockChain(lastBlockHash);
+    }
+
+    /**
+     * 区块链迭代器
+     */
+    public class BlockChainIterator {
+
+        private String currentBlockHash;
+
+        public BlockChainIterator(String currentBlockHash) {
+            this.currentBlockHash = currentBlockHash;
+        }
+
+        /**
+         * 是否有下一个区块
+         *
+         * @return
+         */
+        public boolean hashNext() {
+            if (StringUtils.isBlank(currentBlockHash)) {
+                return false;
+            }
+            Block lastBlock = RocksDBUtils.getInstance().getBlock(currentBlockHash);
+            if (lastBlock == null) {
+                return false;
+            }
+            // 创世区块直接放行
+            if (lastBlock.getPreviousHash().length() == 0) {
+                return true;
+            }
+            return RocksDBUtils.getInstance().getBlock(lastBlock.getPreviousHash()) != null;
+        }
+
+        /**
+         * 返回区块
+         *
+         * @return
+         */
+        public Block next() {
+            Block currentBlock=RocksDBUtils.getInstance().getBlock(currentBlockHash);
+            if(currentBlock!=null){
+                this.currentBlockHash=currentBlock.getPreviousHash();
+                return currentBlock;
+            }
+            return null;
+        }
+    }
+    public BlockChainIterator getBlockChainIterator() {
+        return new BlockChainIterator(lastBlockHash);
     }
 }

@@ -1,7 +1,7 @@
 package jt.btc.pow;
 
 import jt.btc.block.Block;
-import jt.btc.uti.ByteUtils;
+import jt.btc.util.ByteUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

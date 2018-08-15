@@ -2,7 +2,7 @@ package jt.btc.block;
 
 import jt.btc.pow.PowResult;
 import jt.btc.pow.ProofOfWork;
-import jt.btc.uti.ByteUtils;
+import jt.btc.util.ByteUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

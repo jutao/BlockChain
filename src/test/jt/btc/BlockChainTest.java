@@ -6,21 +6,23 @@ import jt.btc.pow.ProofOfWork;
 
 public class BlockChainTest {
     public static void main(String[] args) {
-        BlockChain blockChain=BlockChain.newBlockChain();
-        blockChain.addBlock("send 1 BTC tO JT");
-        blockChain.addBlock("send 2 BTC tO JT");
-        blockChain.addBlock("send 3 BTC tO SDL");
-        blockChain.addBlock("send 4 BTC tO YY");
+        try{
+            BlockChain blockChain=BlockChain.newBlockChain();
+            blockChain.addBlock("send 1 BTC tO JT");
+            blockChain.addBlock("send 2 BTC tO JT");
+            blockChain.addBlock("send 3 BTC tO SDL");
+            blockChain.addBlock("send 4 BTC tO YY");
 
-        for (Block block : blockChain.getBlockList()) {
-            System.out.println("Prev. hash: " + block.getPreviousHash());
-            System.out.println("Data: " + block.getData());
-            System.out.println("Hash: " + block.getHash());
-            System.out.println("Nonce: " + block.getNonce());
+            for (BlockChain.BlockChainIterator iterator=blockChain.getBlockChainIterator();iterator.hashNext();) {
+                Block block=iterator.next();
+                if(block!=null){
+                    boolean validate = ProofOfWork.newProofOfWork(block).validate();
+                    System.out.println(block.toString() + ", validate = " + validate);
+                }
 
-            ProofOfWork pow = ProofOfWork.newProofOfWork(block);
-
-            System.out.println("Pow valid: " + pow.validate() + "\n");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 }

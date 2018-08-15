@@ -1,4 +1,4 @@
-package jt.btc.uti;
+package jt.btc.util;
 
 import org.apache.commons.lang3.ArrayUtils;
 
