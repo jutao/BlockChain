@@ -88,7 +88,7 @@ public class ProofOfWork {
                 //前一个区块（父区块）的Hash值
                 prevBlockHashBytes,
                 // 区块中的交易数据
-                this.getBlock().getData().getBytes(),
+                this.getBlock().hashTransaction(),
                 //区块生成的时间
                 ByteUtils.toBytes(this.getBlock().getTimeStamp()),
                 //难度目标
@@ -105,7 +105,6 @@ public class ProofOfWork {
     public PowResult run() {
         long nonce = 0;
         String shaHex = "";
-        log.info("Mining the block containing：{} \n", new Object[]{this.getBlock().getData()});
         long startTime = System.currentTimeMillis();
         while (nonce < Long.MAX_VALUE) {
             byte[] data = this.prepareData(nonce);

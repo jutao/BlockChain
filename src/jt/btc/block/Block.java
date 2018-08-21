@@ -2,6 +2,7 @@ package jt.btc.block;
 
 import jt.btc.pow.PowResult;
 import jt.btc.pow.ProofOfWork;
+import jt.btc.transaction.Transaction;
 import jt.btc.util.ByteUtils;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,9 +34,9 @@ public class Block {
      */
     private String previousHash;
     /**
-     * 区块数据
+     * 交易信息
      */
-    private String data;
+    private Transaction[] transactions;
     /**
      * 区块创建时间(单位:秒)
      */
@@ -49,8 +50,8 @@ public class Block {
      *
      * @return
      */
-    public static Block newGenesisBlock() {
-        return Block.newBlock("", "Genesis Block");
+    public static Block newGenesisBlock(Transaction coinbase) {
+        return Block.newBlock("", new Transaction[]{coinbase});
     }
 
 
@@ -58,11 +59,11 @@ public class Block {
      * <p> 创建新区块 </p>
      *
      * @param previousHash
-     * @param data
+     * @param transactions
      * @return
      */
-    public static Block newBlock(String previousHash, String data) {
-        Block block = new Block(ZERO_HASH, previousHash, data, Instant.now().getEpochSecond(),0);
+    public static Block newBlock(String previousHash, Transaction[] transactions) {
+        Block block = new Block(ZERO_HASH, previousHash, transactions, Instant.now().getEpochSecond(),0);
         ProofOfWork proofOfWork=ProofOfWork.newProofOfWork(block);
         PowResult powResult=proofOfWork.run();
         block.setHash(powResult.getHash());
@@ -70,6 +71,19 @@ public class Block {
         return block;
     }
 
+
+    /**
+     * 对区块中的交易信息进行Hash计算
+     *
+     * @return
+     */
+    public byte[] hashTransaction() {
+        byte[][] txIdArrays=new byte[this.getTransactions().length][];
+        for (int i = 0; i < this.getTransactions().length; i++) {
+            txIdArrays[i]=this.getTransactions()[i].getTxId();
+        }
+        return DigestUtils.sha256(ByteUtils.merge(txIdArrays));
+    }
 
     /**
      * 计算区块Hash
@@ -89,7 +103,7 @@ public class Block {
         if (StringUtils.isNoneBlank(this.getPreviousHash())) {
             prevBlockHashBytes = new BigInteger(this.getPreviousHash(), 16).toByteArray();
         }
-        byte[] headers = ByteUtils.merge(prevBlockHashBytes, this.getData().getBytes(), ByteUtils.toBytes(this.getTimeStamp()));
+        byte[] headers = ByteUtils.merge(prevBlockHashBytes, this.hashTransaction(), ByteUtils.toBytes(this.getTimeStamp()));
         this.setHash(DigestUtils.sha256Hex(headers));
     }
 }

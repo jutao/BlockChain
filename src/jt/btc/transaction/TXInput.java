@@ -1,5 +1,9 @@
 package jt.btc.transaction;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * ****************************************
  * author：琚涛
@@ -7,6 +11,9 @@ package jt.btc.transaction;
  * description：交易输入
  * ****************************************
  */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class TXInput {
     /**
      * 交易Id的hash值
@@ -22,4 +29,14 @@ public class TXInput {
      * 解锁脚本
      */
     private String scriptSig;
+
+    /**
+     * 判断解锁数据是否能够解锁交易输出
+     *
+     * @param unlockingData
+     * @return
+     */
+    public boolean canUnlockOutputWith(String unlockingData) {
+        return this.getScriptSig().endsWith(unlockingData);
+    }
 }
