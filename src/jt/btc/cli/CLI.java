@@ -54,7 +54,7 @@ public class CLI {
                     if (StringUtils.isBlank(createblockchainAddress)) {
                         help();
                     }
-                    this.createBlockchain(createblockchainAddress);
+                    this.createBlockChain(createblockchainAddress);
                     break;
                 case "getbalance":
                     String getBalanceAddress = cmd.getOptionValue("address");
@@ -96,8 +96,9 @@ public class CLI {
      *
      * @param address
      */
-    private void createBlockchain(String address) throws Exception {
+    private void createBlockChain(String address) throws Exception {
         BlockChain.createBlockChain(address);
+        System.out.println("Done ! ");
     }
 
     /**
